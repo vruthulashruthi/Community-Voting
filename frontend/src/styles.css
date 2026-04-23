@@ -1,0 +1,73 @@
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #0f172a;
+  color: #e2e8f0;
+}
+.topnav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: #020617;
+  border-bottom: 1px solid #1e293b;
+}
+.topnav-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.brand { font-weight: 700; }
+.nav-links { display: flex; gap: 10px; }
+.nav-links a {
+  text-decoration: none;
+  color: #94a3b8;
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+.nav-links a.active {
+  background: #1e293b;
+  color: #e2e8f0;
+}
+.user-chip { margin-left: auto; font-size: 13px; }
+.container { max-width: 960px; margin: 0 auto; padding: 24px; }
+h1 { margin: 0 0 8px; }
+.muted { color: #94a3b8; }
+.card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.badge {
+  padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600;
+  text-transform: uppercase;
+}
+.badge.active { background: #14532d; color: #bbf7d0; }
+.badge.closed { background: #7f1d1d; color: #fecaca; }
+.badge.expired { background: #78350f; color: #fde68a; }
+button {
+  background: #3b82f6; color: white; border: none; padding: 8px 14px;
+  border-radius: 6px; cursor: pointer; font-weight: 600;
+}
+button:hover { background: #2563eb; }
+button.secondary { background: #475569; }
+button.danger { background: #dc2626; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+input, select, textarea {
+  background: #0f172a; border: 1px solid #334155; color: #e2e8f0;
+  padding: 8px 10px; border-radius: 6px; font-size: 14px; width: 100%;
+}
+label { display: block; margin: 8px 0 4px; font-size: 13px; color: #94a3b8; }
+.grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.counts { display: flex; gap: 16px; }
+.counts span { font-size: 14px; }
+.error { color: #fca5a5; margin-top: 8px; }
+.success { color: #86efac; margin-top: 8px; }
+hr { border: none; border-top: 1px solid #334155; margin: 16px 0; }
