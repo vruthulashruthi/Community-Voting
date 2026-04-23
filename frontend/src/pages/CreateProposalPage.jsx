@@ -11,7 +11,7 @@ export default function CreateProposalPage() {
   return (
     <div className="container">
       <h1>Create Proposal</h1>
-      <p className="muted">Create a proposal with a deadline. You will be redirected to proposals after submit.</p>
+      <p className="muted">Create a proposal with a deadline set in days, hours, and minutes. You will be redirected to proposals after submit.</p>
       <CreateProposal onCreated={onCreated} />
     </div>
   );

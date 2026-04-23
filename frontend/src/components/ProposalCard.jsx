@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { getProposal, castVote, closeProposal, revokeVote } from "../api";
 import Countdown from "./Countdown";
 
@@ -7,6 +8,7 @@ export default function ProposalCard({ proposal, onChange }) {
   const [choice, setChoice] = useState("yes");
   const [msg, setMsg] = useState("");
   const [err, setErr] = useState("");
+  const [pendingRevokeId, setPendingRevokeId] = useState(null);
 
   const refresh = async () => {
     const d = await getProposal(proposal.id);
@@ -55,6 +57,13 @@ export default function ProposalCard({ proposal, onChange }) {
     }
   };
 
+  const confirmRevoke = async () => {
+    if (pendingRevokeId == null) return;
+    const voteId = pendingRevokeId;
+    setPendingRevokeId(null);
+    await revoke(voteId);
+  };
+
   if (!detail) return <div className="card">Loading…</div>;
 
   const isActive = detail.status === "active";
@@ -63,7 +72,12 @@ export default function ProposalCard({ proposal, onChange }) {
     <div className="card">
       <div className="row" style={{ justifyContent: "space-between" }}>
         <h3 style={{ margin: 0 }}>{detail.title}</h3>
-        <span className={`badge ${detail.status}`}>{detail.status}</span>
+        <div className="row">
+          <Link className="detail-link-button" to={`/proposals/${detail.id}`}>
+            View details
+          </Link>
+          <span className={`badge ${detail.status}`}>{detail.status}</span>
+        </div>
       </div>
       <p className="muted">{detail.description}</p>
       <div className="row">
@@ -108,7 +122,7 @@ export default function ProposalCard({ proposal, onChange }) {
                     <span className="muted"> · {new Date(v.voted_at).toLocaleString()}</span>
                   </span>
                   {isActive && (
-                    <button className="danger" onClick={() => revoke(v.id)}>
+                    <button className="danger" type="button" onClick={() => setPendingRevokeId(v.id)}>
                       Revoke
                     </button>
                   )}
@@ -121,6 +135,32 @@ export default function ProposalCard({ proposal, onChange }) {
 
       {msg && <div className="success">{msg}</div>}
       {err && <div className="error">{err}</div>}
+
+      {pendingRevokeId != null && (
+        <div className="modal-backdrop" role="presentation" onClick={() => setPendingRevokeId(null)}>
+          <div
+            className="modal-card"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="revoke-modal-title"
+            aria-describedby="revoke-modal-description"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 id="revoke-modal-title">Confirm revoke</h3>
+            <p id="revoke-modal-description" className="muted">
+              Are you sure you want to revoke this vote? This action will delete the vote immediately.
+            </p>
+            <div className="row modal-actions">
+              <button className="secondary" type="button" onClick={() => setPendingRevokeId(null)}>
+                Cancel
+              </button>
+              <button className="danger" type="button" onClick={confirmRevoke}>
+                Revoke vote
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

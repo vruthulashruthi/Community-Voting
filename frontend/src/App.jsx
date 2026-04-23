@@ -3,6 +3,8 @@ import { BrowserRouter, Navigate, NavLink, Route, Routes } from "react-router-do
 import { getAuthToken, login, setAuthToken } from "./api";
 import CreateProposalPage from "./pages/CreateProposalPage";
 import LoginPage from "./pages/LoginPage";
+import MyVotesPage from "./pages/MyVotesPage";
+import ProposalDetailPage from "./pages/ProposalDetailPage";
 import ProposalsPage from "./pages/ProposalsPage";
 
 const USER_KEY = "voting_auth_user";
@@ -57,6 +59,7 @@ export default function App() {
           <div className="brand">Community Voting</div>
           <nav className="nav-links">
             <NavLink to="/login">Login</NavLink>
+            <NavLink to="/my-votes">My votes</NavLink>
             <NavLink to="/proposals">Proposals</NavLink>
             <NavLink to="/create">Create</NavLink>
           </nav>
@@ -72,10 +75,26 @@ export default function App() {
           element={<LoginPage authUser={authUser} onLogin={handleLogin} onLogout={handleLogout} />}
         />
         <Route
+          path="/my-votes"
+          element={
+            <ProtectedRoute isAuthed={Boolean(getAuthToken())}>
+              <MyVotesPage authUser={authUser} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/proposals"
           element={
             <ProtectedRoute isAuthed={Boolean(getAuthToken())}>
               <ProposalsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/proposals/:proposalId"
+          element={
+            <ProtectedRoute isAuthed={Boolean(getAuthToken())}>
+              <ProposalDetailPage />
             </ProtectedRoute>
           }
         />
@@ -87,7 +106,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="*" element={<Navigate to={isAuthed ? "/proposals" : "/login"} replace />} />
+        <Route path="*" element={<Navigate to={isAuthed ? "/my-votes" : "/login"} replace />} />
       </Routes>
     </BrowserRouter>
   );

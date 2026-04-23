@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginPage({ authUser, onLogin, onLogout }) {
+  const navigate = useNavigate();
   const [username, setUsername] = useState("alice");
   const [password, setPassword] = useState("password");
   const [error, setError] = useState("");
@@ -12,6 +14,7 @@ export default function LoginPage({ authUser, onLogin, onLogout }) {
     setBusy(true);
     try {
       await onLogin({ username, password });
+      navigate("/my-votes", { replace: true });
     } catch (err) {
       setError(err?.response?.data?.detail || "Login failed");
     } finally {
