@@ -7,7 +7,7 @@ from app.auth import get_current_user, require_admin
 from app.database import get_db
 from app.models.proposal import Proposal
 from app.schemas.auth import UserContext
-from app.schemas.proposal import ProposalCreate, ProposalRead, ProposalDetail, VoteCounts
+from app.schemas.proposal import ProposalCreate, ProposalRead, ProposalDetail
 from app.schemas.vote import VoteCreate, VoteRead
 from app.services import proposal_service, vote_service
 
@@ -32,10 +32,8 @@ def list_proposals(db: Session = Depends(get_db)) -> List[Proposal]:
 def get_proposal(
     proposal_id: int,
     db: Session = Depends(get_db),
-    user: UserContext = Depends(get_current_user),
 ) -> ProposalDetail:
     proposal, counts, votes = proposal_service.get_proposal_with_votes(db, proposal_id)
-    can_view_votes = user.role == "admin" or any(v.voter_name == user.username for v in votes)
 
     return ProposalDetail(
         id=proposal.id,
@@ -44,9 +42,9 @@ def get_proposal(
         created_at=proposal.created_at,
         deadline=proposal.deadline,
         status=proposal.status,
-        counts=counts if can_view_votes else VoteCounts(),
-        votes=[VoteRead.model_validate(v) for v in votes] if can_view_votes else [],
-        can_view_votes=can_view_votes,
+        counts=counts,
+        votes=[VoteRead.model_validate(v) for v in votes],
+        can_view_votes=True,
     )
 
 

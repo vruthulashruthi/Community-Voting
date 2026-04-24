@@ -20,11 +20,11 @@ def _create_proposal(client, headers, title="Test", days=2):
 def test_create_and_get_proposal(client):
     alice = _auth_header(client, "alice", "password")
     p = _create_proposal(client, alice, "Garden")
-    r = client.get(f"/proposals/{p['id']}", headers=alice)
+    r = client.get(f"/proposals/{p['id']}")
     assert r.status_code == 200
     body = r.json()
     assert body["title"] == "Garden"
-    assert body["can_view_votes"] is False
+    assert body["can_view_votes"] is True
     assert body["counts"]["total"] == 0
 
 

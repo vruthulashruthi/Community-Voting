@@ -12,6 +12,8 @@ Steps:
 """
 from datetime import datetime, timedelta
 
+import httpx
+
 from voting_sdk import ApiClient, Configuration
 from voting_sdk.api.proposals_api import ProposalsApi
 from voting_sdk.api.votes_api import VotesApi
@@ -20,8 +22,25 @@ from voting_sdk.models.vote_create import VoteCreate
 from voting_sdk.rest import ApiException
 
 
-def main():
-    config = Configuration(host="http://localhost:8000")
+def _fetch_access_token(host: str) -> str:
+    """Login with demo credentials and raises RuntimeError on authentication failure."""
+    response = httpx.post(
+        f"{host}/auth/login",
+        json={"username": "alice", "password": "password"},
+        timeout=10.0,
+    )
+    if response.status_code != 200:
+        raise RuntimeError(f"Login failed: {response.status_code} {response.text}")
+    token = response.json().get("access_token")
+    if not token:
+        raise RuntimeError("Login response missing access token")
+    return token
+
+
+def main() -> None:
+    host = "http://localhost:8000"
+    access_token = _fetch_access_token(host)
+    config = Configuration(host=host, access_token=access_token)
     with ApiClient(config) as client:
         proposals_api = ProposalsApi(client)
         votes_api = VotesApi(client)
@@ -40,7 +59,7 @@ def main():
         # 2. Cast a vote
         vote = proposals_api.vote_on_proposal_proposals_proposal_id_vote_post(
             proposal_id=new_proposal.id,
-            vote_create=VoteCreate(voter_name="sdk_user", vote="yes"),
+            vote_create=VoteCreate(voter_name="alice", vote="yes"),
         )
         print("Cast vote id:", vote.id)
 
