@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function LoginPage({ authUser, onLogin, onLogout }) {
   const navigate = useNavigate();
@@ -23,16 +23,17 @@ export default function LoginPage({ authUser, onLogin, onLogout }) {
   };
 
   return (
-    <div className="container">
-      <h1>Sign in</h1>
-      <p className="muted">Use demo credentials to access protected features.</p>
+    <div className="container login-page">
+      <form className="card login-card" onSubmit={submit}>
+        <Link className="inline-link" to="/proposals">Back to home</Link>
+        <h1>Log in</h1>
+        <p className="muted">Use demo credentials to access protected features.</p>
 
-      <form className="card" onSubmit={submit}>
         <label>Username</label>
         <input
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          placeholder="Username"
+          placeholder="you@city.org"
           required
         />
 
@@ -45,15 +46,31 @@ export default function LoginPage({ authUser, onLogin, onLogout }) {
           required
         />
 
-        <div className="row" style={{ marginTop: 12 }}>
-          <button disabled={busy} type="submit">{busy ? "Signing in..." : "Login"}</button>
-          <button type="button" className="secondary" onClick={onLogout}>Logout</button>
+        <div className="login-primary-actions">
+          <button disabled={busy} type="submit" className="auth-primary-button">{busy ? "Signing in..." : "Log in"}</button>
         </div>
 
-        <p className="muted" style={{ marginTop: 8 }}>
-          Demo: alice/password, bob/password, admin/admin123
-        </p>
-        {authUser && <div className="success">Signed in as {authUser.username} ({authUser.role})</div>}
+        {authUser && (
+          <div className="login-status-bar">
+            <span className="muted">Signed in as {authUser.username} ({authUser.role})</span>
+            <button type="button" className="secondary login-logout-button" onClick={onLogout}>Logout</button>
+          </div>
+        )}
+
+        {!authUser && (
+          <div className="login-helper-row muted">
+            <span>Use the demo credentials below to access protected features.</span>
+          </div>
+        )}
+
+        <div className="demo-row">
+          <button type="button" className="secondary" disabled>
+            Demo: voter
+          </button>
+          <button type="button" className="secondary" disabled>
+            Demo: admin
+          </button>
+        </div>
         {error && <div className="error">{error}</div>}
       </form>
     </div>

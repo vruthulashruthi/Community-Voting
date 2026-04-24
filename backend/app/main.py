@@ -4,10 +4,11 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import Base, engine
 from app.routers import auth, proposals, votes
+from app.settings import settings
 
-# Ensure tables exist (Alembic is the source of truth for production migrations,
-# but this guarantees a working DB even before migrations are run).
-Base.metadata.create_all(bind=engine)
+if settings.auto_create_tables:
+    # Keep local developer convenience optional; production should use Alembic migrations.
+    Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Community Digital Voting System",
@@ -17,8 +18,8 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=settings.cors_origins,
+    allow_credentials=settings.allow_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -29,5 +30,5 @@ app.include_router(votes.router)
 
 
 @app.get("/", tags=["health"])
-def root():
+def root() -> dict[str, str]:
     return {"status": "ok", "service": "community-voting", "docs": "/docs"}

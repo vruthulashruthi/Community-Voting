@@ -40,3 +40,4 @@ class VoteCounts(BaseModel):
 class ProposalDetail(ProposalRead):
     counts: VoteCounts
     votes: List[VoteRead] = []
+    can_view_votes: bool = False

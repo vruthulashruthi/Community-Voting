@@ -56,6 +56,21 @@ setupdev.bat
 This creates an `env` virtual environment, installs backend deps, runs Alembic migrations, and installs frontend deps.
 Java (JDK 17+) is required for SDK generation.
 
+### Environment configuration
+
+Copy `.env.example` to `.env` and adjust values for your environment.
+
+```bash
+cp .env.example .env
+```
+
+Key variables:
+
+- `DATABASE_URL`: SQLAlchemy connection string.
+- `CORS_ORIGINS`: Comma-delimited origins (for example `http://localhost:5173`).
+- `AUTH_SECRET_KEY`: JWT signing key (must be strong in production).
+- `AUTO_CREATE_TABLES`: Keep `false` in production and rely on Alembic.
+
 ### Manual setup (any OS)
 
 ```bash
@@ -109,7 +124,7 @@ cd frontend && npm run dev
 
 ### Auth & roles
 
-- Token auth: send `Authorization: Bearer <token>`
+- JWT bearer auth: send `Authorization: Bearer <token>`
 - Demo users:
   - `alice` / `password` (voter)
   - `bob` / `password` (voter)
@@ -171,6 +186,25 @@ from voting_sdk import ApiClient
 
 ```bash
 pytest -v
+```
+
+## ✅ Quality checks
+
+Backend:
+
+```bash
+ruff check backend tests
+mypy backend/app
+pytest -q
+```
+
+Frontend:
+
+```bash
+cd frontend
+npm run lint
+npm run test:run
+npm run build
 ```
 
 Covers:

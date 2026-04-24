@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.auth import get_current_user, require_admin
 from app.database import get_db
+from app.models.proposal import Proposal
 from app.schemas.auth import UserContext
 from app.schemas.proposal import ProposalCreate, ProposalRead, ProposalDetail, VoteCounts
 from app.schemas.vote import VoteCreate, VoteRead
@@ -18,18 +19,24 @@ def create_proposal(
     payload: ProposalCreate,
     db: Session = Depends(get_db),
     user: UserContext = Depends(get_current_user),
-):
+) -> ProposalRead:
     return proposal_service.create_proposal(db, payload)
 
 
 @router.get("/", response_model=List[ProposalRead])
-def list_proposals(db: Session = Depends(get_db)):
+def list_proposals(db: Session = Depends(get_db)) -> List[Proposal]:
     return proposal_service.list_proposals(db)
 
 
 @router.get("/{proposal_id}", response_model=ProposalDetail)
-def get_proposal(proposal_id: int, db: Session = Depends(get_db)):
+def get_proposal(
+    proposal_id: int,
+    db: Session = Depends(get_db),
+    user: UserContext = Depends(get_current_user),
+) -> ProposalDetail:
     proposal, counts, votes = proposal_service.get_proposal_with_votes(db, proposal_id)
+    can_view_votes = user.role == "admin" or any(v.voter_name == user.username for v in votes)
+
     return ProposalDetail(
         id=proposal.id,
         title=proposal.title,
@@ -37,8 +44,9 @@ def get_proposal(proposal_id: int, db: Session = Depends(get_db)):
         created_at=proposal.created_at,
         deadline=proposal.deadline,
         status=proposal.status,
-        counts=counts,
-        votes=[VoteRead.model_validate(v) for v in votes],
+        counts=counts if can_view_votes else VoteCounts(),
+        votes=[VoteRead.model_validate(v) for v in votes] if can_view_votes else [],
+        can_view_votes=can_view_votes,
     )
 
 
@@ -48,7 +56,7 @@ def vote_on_proposal(
     payload: VoteCreate,
     db: Session = Depends(get_db),
     user: UserContext = Depends(get_current_user),
-):
+) -> VoteRead:
     return vote_service.cast_vote(db, proposal_id, payload, actor_name=user.username)
 
 
@@ -57,5 +65,5 @@ def close_proposal(
     proposal_id: int,
     db: Session = Depends(get_db),
     user: UserContext = Depends(require_admin),
-):
+) -> ProposalRead:
     return proposal_service.close_proposal(db, proposal_id)

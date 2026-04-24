@@ -1,10 +1,15 @@
 """Proposal SQLAlchemy model."""
 import enum
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, DateTime, Enum, Text
-from sqlalchemy.orm import relationship
+from typing import List, TYPE_CHECKING
+
+from sqlalchemy import DateTime, Enum, Integer, String, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
+
+if TYPE_CHECKING:
+    from app.models.vote import Vote
 
 
 class ProposalStatus(str, enum.Enum):
@@ -16,11 +21,19 @@ class ProposalStatus(str, enum.Enum):
 class Proposal(Base):
     __tablename__ = "proposals"
 
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String(200), nullable=False)
-    description = Column(Text, nullable=False, default="")
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
-    deadline = Column(DateTime, nullable=False)
-    status = Column(Enum(ProposalStatus), nullable=False, default=ProposalStatus.active)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    title: Mapped[str] = mapped_column(String(200), nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+    deadline: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    status: Mapped[ProposalStatus] = mapped_column(
+        Enum(ProposalStatus),
+        nullable=False,
+        default=ProposalStatus.active,
+    )
 
-    votes = relationship("Vote", back_populates="proposal", cascade="all, delete-orphan")
+    votes: Mapped[List["Vote"]] = relationship(
+        "Vote",
+        back_populates="proposal",
+        cascade="all, delete-orphan",
+    )

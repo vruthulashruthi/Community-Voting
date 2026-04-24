@@ -29,13 +29,20 @@ export default function CreateProposal({ onCreated }) {
   };
 
   return (
-    <form className="card" onSubmit={submit}>
-      <h3>Create proposal</h3>
-      <label>Title</label>
-      <input value={title} onChange={(e) => setTitle(e.target.value)} required />
-      <label>Description</label>
-      <textarea rows={3} value={description} onChange={(e) => setDescription(e.target.value)} />
-      <label>Deadline from now</label>
+    <form className="card proposal-wizard" onSubmit={submit}>
+      <div className="wizard-panel">
+        <h3>A clear, decisive headline.</h3>
+        <p className="muted">Aim for one sentence. The chamber should know exactly what they are deciding.</p>
+
+        <label>Title</label>
+        <input value={title} onChange={(e) => setTitle(e.target.value)} required />
+
+        <label>Description</label>
+        <textarea rows={3} value={description} onChange={(e) => setDescription(e.target.value)} />
+
+        <label>Deadline from now</label>
+      </div>
+
       <div className="deadline-grid">
         <div>
           <span className="field-label">Days</span>
@@ -67,9 +74,15 @@ export default function CreateProposal({ onCreated }) {
           />
         </div>
       </div>
+
       <p className="muted small-help">The deadline will be set to the combined duration you enter.</p>
       <hr />
-      <button disabled={busy}>{busy ? "Creating..." : "Create"}</button>
+
+      <div className="row row-space-between">
+        <button type="button" className="secondary">Back</button>
+        <button disabled={busy}>{busy ? "Creating..." : "Continue"}</button>
+      </div>
+
       {error && <div className="error">{error}</div>}
     </form>
   );

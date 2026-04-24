@@ -15,6 +15,6 @@ def revoke_vote(
     vote_id: int,
     db: Session = Depends(get_db),
     user: UserContext = Depends(get_current_user),
-):
+) -> None:
     vote_service.revoke_vote(db, vote_id, actor_name=user.username, is_admin=(user.role == "admin"))
     return None

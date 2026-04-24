@@ -20,10 +20,11 @@ def _create_proposal(client, headers, title="Test", days=2):
 def test_create_and_get_proposal(client):
     alice = _auth_header(client, "alice", "password")
     p = _create_proposal(client, alice, "Garden")
-    r = client.get(f"/proposals/{p['id']}")
+    r = client.get(f"/proposals/{p['id']}", headers=alice)
     assert r.status_code == 200
     body = r.json()
     assert body["title"] == "Garden"
+    assert body["can_view_votes"] is False
     assert body["counts"]["total"] == 0
 
 
@@ -35,7 +36,7 @@ def test_vote_and_counts(client):
     assert r.status_code == 201
     r = client.post(f"/proposals/{p['id']}/vote", json={"voter_name": "bob", "vote": "no"}, headers=bob)
     assert r.status_code == 201
-    r = client.get(f"/proposals/{p['id']}")
+    r = client.get(f"/proposals/{p['id']}", headers=alice)
     counts = r.json()["counts"]
     assert counts == {"yes": 1, "no": 1, "abstain": 0, "total": 2}
 
@@ -55,7 +56,7 @@ def test_revoke_vote_when_active(client):
     vote_id = r.json()["id"]
     r = client.delete(f"/votes/{vote_id}", headers=alice)
     assert r.status_code == 204
-    r = client.get(f"/proposals/{p['id']}")
+    r = client.get(f"/proposals/{p['id']}", headers=alice)
     assert r.json()["counts"]["total"] == 0
 
 

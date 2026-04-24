@@ -67,36 +67,61 @@ export default function ProposalCard({ proposal, onChange }) {
   if (!detail) return <div className="card">Loading…</div>;
 
   const isActive = detail.status === "active";
+  const canViewVotes = Boolean(detail.can_view_votes);
+  const totalVotes = detail.counts.total || 0;
+  const yesPct = totalVotes > 0 ? (detail.counts.yes / totalVotes) * 100 : 0;
+  const abstainPct = totalVotes > 0 ? (detail.counts.abstain / totalVotes) * 100 : 0;
+  const noPct = totalVotes > 0 ? (detail.counts.no / totalVotes) * 100 : 0;
 
   return (
-    <div className="card">
-      <div className="row" style={{ justifyContent: "space-between" }}>
-        <h3 style={{ margin: 0 }}>{detail.title}</h3>
-        <div className="row">
-          <Link className="detail-link-button" to={`/proposals/${detail.id}`}>
-            View details
-          </Link>
+    <div className="card proposal-card">
+      <div className="row row-space-between">
+        <div className="proposal-meta-line">
+          <span className="proposal-topic">proposal</span>
+          <span className="muted">·</span>
+          <span className="muted">#{detail.id}</span>
+        </div>
+        <div className="row card-actions">
           <span className={`badge ${detail.status}`}>{detail.status}</span>
+          <Link className="detail-link-button" to={`/proposals/${detail.id}`}>
+            ↗
+          </Link>
         </div>
       </div>
+
+      <h3 className="heading-reset proposal-title">{detail.title}</h3>
       <p className="muted">{detail.description}</p>
       <div className="row">
         <Countdown deadline={detail.deadline} />
         <span className="muted">· Deadline: {new Date(detail.deadline).toLocaleString()}</span>
       </div>
+
       <hr />
-      <div className="counts">
-        <span>✅ Yes: <b>{detail.counts.yes}</b></span>
-        <span>❌ No: <b>{detail.counts.no}</b></span>
-        <span>🤷 Abstain: <b>{detail.counts.abstain}</b></span>
-        <span>Total: <b>{detail.counts.total}</b></span>
-      </div>
+
+      {canViewVotes ? (
+        <>
+          <div className="vote-track" role="img" aria-label="Vote distribution">
+            <div className="vote-track-segment yes" style={{ width: `${yesPct}%` }} />
+            <div className="vote-track-segment abstain" style={{ width: `${abstainPct}%` }} />
+            <div className="vote-track-segment no" style={{ width: `${noPct}%` }} />
+          </div>
+
+          <div className="counts vote-count-row">
+            <span><b>{detail.counts.yes}</b> yes</span>
+            <span><b>{detail.counts.no}</b> no</span>
+            <span><b>{detail.counts.abstain}</b> abstain</span>
+            <span><b>{detail.counts.total}</b> total</span>
+          </div>
+        </>
+      ) : (
+        <p className="muted">Vote statistics unlock after you cast your vote in this proposal.</p>
+      )}
 
       {isActive && (
         <>
           <hr />
-          <form className="row" onSubmit={submitVote}>
-            <select value={choice} onChange={(e) => setChoice(e.target.value)} style={{ width: 140 }}>
+          <form className="row vote-actions" onSubmit={submitVote}>
+            <select className="select-narrow" value={choice} onChange={(e) => setChoice(e.target.value)}>
               <option value="yes">Yes</option>
               <option value="no">No</option>
               <option value="abstain">Abstain</option>
@@ -109,14 +134,14 @@ export default function ProposalCard({ proposal, onChange }) {
         </>
       )}
 
-      {detail.votes.length > 0 && (
+      {canViewVotes && detail.votes.length > 0 && (
         <>
           <hr />
           <details>
             <summary className="muted">Show votes ({detail.votes.length})</summary>
-            <ul style={{ paddingLeft: 16 }}>
+            <ul className="list-indent-md">
               {detail.votes.map((v) => (
-                <li key={v.id} className="row" style={{ justifyContent: "space-between" }}>
+                <li key={v.id} className="row row-space-between vote-detail-row">
                   <span>
                     <b>{v.voter_name}</b> voted <b>{v.vote}</b>
                     <span className="muted"> · {new Date(v.voted_at).toLocaleString()}</span>

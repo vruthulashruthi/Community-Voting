@@ -20,8 +20,6 @@ export default function Countdown({ deadline }) {
   const secs = s % 60;
 
   return (
-    <span className="muted">
-      ⏳ {days}d {hrs}h {mins}m {secs}s
-    </span>
+    <span className="muted">{days}d {hrs}h {mins}m {secs}s left</span>
   );
 }

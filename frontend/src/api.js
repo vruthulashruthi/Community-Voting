@@ -5,17 +5,17 @@ const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
-const TOKEN_KEY = "voting_auth_token";
+const tokenKey = "voting_auth_token";
 
 export const setAuthToken = (token) => {
   if (token) {
-    localStorage.setItem(TOKEN_KEY, token);
+    localStorage.setItem(tokenKey, token);
   } else {
-    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(tokenKey);
   }
 };
 
-export const getAuthToken = () => localStorage.getItem(TOKEN_KEY);
+export const getAuthToken = () => localStorage.getItem(tokenKey);
 
 api.interceptors.request.use((config) => {
   const token = getAuthToken();
@@ -25,18 +25,43 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-export const login = (payload) =>
-  api.post("/auth/login", payload).then((r) => {
-    const token = r.data?.access_token;
-    if (token) setAuthToken(token);
-    return r.data;
-  });
+export const login = async (payload) => {
+  const response = await api.post("/auth/login", payload);
+  const token = response.data?.access_token;
+  if (token) {
+    setAuthToken(token);
+  }
+  return response.data;
+};
 
-export const listProposals = () => api.get("/proposals/").then((r) => r.data);
-export const getProposal = (id) => api.get(`/proposals/${id}`).then((r) => r.data);
-export const createProposal = (payload) => api.post("/proposals/", payload).then((r) => r.data);
-export const castVote = (id, payload) => api.post(`/proposals/${id}/vote`, payload).then((r) => r.data);
-export const closeProposal = (id) => api.patch(`/proposals/${id}/close`).then((r) => r.data);
-export const revokeVote = (voteId) => api.delete(`/votes/${voteId}`).then((r) => r.data);
+export const listProposals = async () => {
+  const response = await api.get("/proposals/");
+  return response.data;
+};
+
+export const getProposal = async (id) => {
+  const response = await api.get(`/proposals/${id}`);
+  return response.data;
+};
+
+export const createProposal = async (payload) => {
+  const response = await api.post("/proposals/", payload);
+  return response.data;
+};
+
+export const castVote = async (id, payload) => {
+  const response = await api.post(`/proposals/${id}/vote`, payload);
+  return response.data;
+};
+
+export const closeProposal = async (id) => {
+  const response = await api.patch(`/proposals/${id}/close`);
+  return response.data;
+};
+
+export const revokeVote = async (voteId) => {
+  const response = await api.delete(`/votes/${voteId}`);
+  return response.data;
+};
 
 export default api;

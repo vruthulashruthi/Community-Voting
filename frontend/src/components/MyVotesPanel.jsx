@@ -49,8 +49,8 @@ export default function MyVotesPanel({ username }) {
 
   return (
     <section className="card my-votes-panel">
-      <div className="row" style={{ justifyContent: "space-between" }}>
-        <h3 style={{ margin: 0 }}>My votes</h3>
+      <div className="row row-space-between">
+        <h3 className="heading-reset">My votes</h3>
         <span className="muted">{username || "Unknown user"}</span>
       </div>
 
@@ -64,11 +64,11 @@ export default function MyVotesPanel({ username }) {
         <ul className="my-votes-list">
           {rows.map((row) => (
             <li key={row.voteId} className="my-votes-item">
-              <div className="row" style={{ justifyContent: "space-between" }}>
+              <div className="row row-space-between">
                 <strong>{row.proposalTitle}</strong>
                 <span className={`badge ${row.proposalStatus}`}>{row.proposalStatus}</span>
               </div>
-              <div className="row" style={{ justifyContent: "space-between" }}>
+              <div className="row row-space-between">
                 <span>
                   You voted <strong>{row.choice}</strong>
                 </span>
